@@ -2,7 +2,7 @@ export default class Tool {
   constructor (option) {
     this.options = {
       productName: this.getProductName(), // 产品名称
-      init: this.init,
+      renderMenu: undefined,
       ...option
     }
     this.menuList = []
@@ -12,31 +12,19 @@ export default class Tool {
     // 解析URL
   }
 
-  init(cb) {
-    const menuList = this.isDisable(this.menuList)
-    if (typeof cb === 'function') {
-      return cb(menuList)
-    }
-    if (cb) {
-      throw new Error('菜单栏配置错误')
-    }
-    // 内置UI 或者 自定义UI
-    var dom = document.createElement('div')
-    var body = document.body
-    // 样式挂载
-    // 插入menuList
-    body.appendChild(dom)
-    return dom
-  }
-
   install(plugins) { // 插件注册功能
     if (!plugins) {
       return
     }
     if (Array.isArray(plugins) && plugins.length) {
-      plugins.forEach(plugin => plugin(this.getOptions))
+      let len = plugins.length
+      for (let i = 0; i < len; i++) {
+        plugins[i](this.getOptions)
+      }
+      this.renderMenu()
     } else if (typeof plugins === 'function') {
-      plugin(this.getOptions)
+      plugins(this.getOptions)
+      this.renderMenu()
     } else {
       throw new TypeError('请使用Array插件集合或者Function类型插件')
     }
@@ -45,6 +33,7 @@ export default class Tool {
   getOptions() {
     return Object.assign({}, this.options, { addMenuItem: this.addMenuItem })
   }
+
   addMenuItem(options) {
     if (options.title === undefined) {
       throw new Error('请配置菜单项title')
@@ -64,6 +53,26 @@ export default class Tool {
     // 去掉undefined项
     this.menuList = this.menuList.filter(m => m)
   }
+
+  renderMenu() {
+    const menuList = this.isDisable(this.menuList)
+    if (typeof this.option.renderMenu === 'function') {
+      return cb(menuList)
+    }
+    if (this.option.renderMenu) {
+      throw new Error('菜单栏配置错误')
+    }
+    if (this.option.renderMenu === undefined) {
+      // 内置UI
+      var dom = document.createElement('div')
+      var body = document.body
+      // 样式挂载
+      // 插入menuList
+      body.appendChild(dom)
+      return dom
+    }
+  }
+
   isDisable(menuList) {
     return menuList.filter(m => !m.disable)
   }
