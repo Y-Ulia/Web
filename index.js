@@ -1,5 +1,3 @@
-
-
 export default class Tool {
   constructor (option) {
     this.options = {
