@@ -7,7 +7,7 @@ export default class Tool {
       init: this.init,
       ...option
     }
-    this.menuList = [] //
+    this.menuList = []
   }
 
   getProductName() {
@@ -15,8 +15,9 @@ export default class Tool {
   }
 
   init(cb) {
+    const menuList = this.isDisable(this.menuList)
     if (typeof cb === 'function') {
-      return cb(this.menuList)
+      return cb(menuList)
     }
     if (cb) {
       throw new Error('菜单栏配置错误')
@@ -25,7 +26,7 @@ export default class Tool {
     var dom = document.createElement('div')
     var body = document.body
     // 样式挂载
-    // 插入this.menuList
+    // 插入menuList
     body.appendChild(dom)
     return dom
   }
@@ -35,14 +36,17 @@ export default class Tool {
       return
     }
     if (Array.isArray(plugins) && plugins.length) {
-      plugins.forEach(plugin => plugin(Object.assign({}, this.options), this.render))
+      plugins.forEach(plugin => plugin(this.getOptions))
     } else if (typeof plugins === 'function') {
-      plugin(Object.assign({}, this.options), this.render)
+      plugin(this.getOptions)
     } else {
       throw new TypeError('请使用Array插件集合或者Function类型插件')
     }
   }
 
+  getOptions() {
+    return Object.assign({}, this.options, { addMenuItem: this.addMenuItem })
+  }
   addMenuItem(options) {
     if (options.title === undefined) {
       throw new Error('请配置菜单项title')
@@ -61,5 +65,8 @@ export default class Tool {
     }
     // 去掉undefined项
     this.menuList = this.menuList.filter(m => m)
+  }
+  isDisable(menuList) {
+    return menuList.filter(m => !m.disable)
   }
 }
