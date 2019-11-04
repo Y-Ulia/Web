@@ -57,7 +57,7 @@ export default class Tool {
   renderMenu() {
     const menuList = this.isDisable(this.menuList)
     if (typeof this.option.renderMenu === 'function') {
-      return cb(menuList)
+      return cb(Object.assign([], menuList))
     }
     if (this.option.renderMenu) {
       throw new Error('菜单栏配置错误')
