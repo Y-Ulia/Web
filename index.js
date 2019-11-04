@@ -1,13 +1,20 @@
 export default class Tool {
-  constructor (option) {
-    this.options = {
+  constructor (option = {}) {
+    // option 入参检验
+    this.options = Object.freeze({
       productName: this.getProductName(), // 产品名称
       renderMenu: undefined,
-      ...option
-    }
+      ...this.isReadOnly(option)
+    })
     this.menuList = []
   }
-
+  isReadOnly(option = {}) {
+    return new Proxy(option, {
+      set (target, key, value) {
+        return false
+      }
+    })
+  }
   getProductName() {
     // 解析URL
   }
@@ -34,7 +41,7 @@ export default class Tool {
     return Object.assign({}, this.options, { addMenuItem: this.addMenuItem })
   }
 
-  addMenuItem(options) {
+  addMenuItem(options = {}) {
     if (options.title === undefined) {
       throw new Error('请配置菜单项title')
     }
@@ -57,10 +64,7 @@ export default class Tool {
   renderMenu() {
     const menuList = this.isDisable(this.menuList)
     if (typeof this.option.renderMenu === 'function') {
-      return cb(Object.assign([], menuList))
-    }
-    if (this.option.renderMenu) {
-      throw new Error('菜单栏配置错误')
+      return this.option.renderMenu(Object.assign([], menuList))
     }
     if (this.option.renderMenu === undefined) {
       // 内置UI
@@ -70,6 +74,8 @@ export default class Tool {
       // 插入menuList
       body.appendChild(dom)
       return dom
+    } else {
+      throw new Error('菜单栏配置错误')
     }
   }
 
