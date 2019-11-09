@@ -12,3 +12,8 @@ input {
   font-family: 'password';
 }
 ```
+
+```
+2.Element UI 控件el-input输入卡顿
+<el-input @change="$forceUpdate()"></el-input>
+```
